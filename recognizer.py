@@ -4,8 +4,9 @@ import numpy as np
 import os
 
 class FacialRecognizer:
-    def __init__(self, data_bank_dir="data_bank"):
+    def __init__(self, data_bank_dir="data_bank", tolerance=0.5):
         self.data_bank_dir = data_bank_dir
+        self.tolerance = tolerance # Lower is stricter (0.6 is default, 0.4-0.5 is better for security)
         self.known_face_encodings = []
         self.known_face_names = []
         self.load_data_bank()
@@ -57,15 +58,22 @@ class FacialRecognizer:
             face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
             for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
+                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, tolerance=self.tolerance)
                 name = "Unknown"
+                distance = 1.0 # Max distance
 
                 # Use the known face with the smallest distance to the new face
                 face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
                 if len(face_distances) > 0:
                     best_match_index = np.argmin(face_distances)
+                    distance = face_distances[best_match_index]
                     if matches[best_match_index]:
+                        # Distance is lower than tolerance
                         name = self.known_face_names[best_match_index]
+                        # Convert distance to a simple "Confidence Score" (%)
+                        # 0.0 distance = 100% match, self.tolerance = 0% boundary
+                        confidence = max(0, (1 - (distance / self.tolerance)) * 100)
+                        name = f"{name} ({confidence:.0f}%)"
 
                 # Scale back up face locations since the frame we detected in was scaled
                 if process_rescale != 1.0:

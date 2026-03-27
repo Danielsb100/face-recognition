@@ -16,7 +16,7 @@ class FacialRecognitionApp:
         self.root.geometry("800x650")
         self.root.configure(bg="#2e2e2e")
 
-        self.recognizer = FacialRecognizer()
+        self.recognizer = FacialRecognizer(tolerance=0.45) # Stricter than default
         self.current_image_path = None
         
         # Camera Threading State
