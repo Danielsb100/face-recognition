@@ -5,6 +5,7 @@ import numpy as np
 from recognizer import FacialRecognizer
 import os
 import sys
+import time
 
 # Determina o diretório base (funciona tanto no script quanto no .exe do PyInstaller)
 if getattr(sys, 'frozen', False):
@@ -27,6 +28,13 @@ recognizer = FacialRecognizer(data_bank_dir=databank_path)
 gui_callback = None
 # Callback to update GUI image display
 gui_callback_image = None
+
+# Store the latest analysis result for polling from Even App
+last_analysis_result = {
+    "timestamp": 0.0,
+    "names": [],
+    "count": 0
+}
 
 @app.route('/')
 def index():
@@ -73,10 +81,16 @@ def analyze():
         # Run recognition and get annotated frame and names
         annotated_frame, names = recognizer.recognize_in_frame(frame, process_rescale=1.0, return_names=True)
         
-        global gui_callback_image
+        global gui_callback_image, last_analysis_result
         if gui_callback_image:
             rgb_frame = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
             gui_callback_image(rgb_frame)
+            
+        last_analysis_result = {
+            "timestamp": time.time(),
+            "names": names,
+            "count": len(names)
+        }
             
         return jsonify({
             "names": names,
@@ -96,6 +110,10 @@ def status():
         "status": "online",
         "known_faces_count": len(recognizer.known_face_names)
     })
+
+@app.route('/latest_results', methods=['GET'])
+def latest_results():
+    return jsonify(last_analysis_result)
 
 if __name__ == '__main__':
     # Run on all interfaces (0.0.0.0) so it's accessible via Wi-Fi IP
