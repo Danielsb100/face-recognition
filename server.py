@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -18,7 +18,7 @@ else:
 webapp_path = os.path.join(base_dir, 'webapp_dist')
 databank_path = os.path.join(base_dir, 'data_bank')
 
-app = Flask(__name__, static_folder=webapp_path, static_url_path='/')
+app = Flask(__name__)
 CORS(app)
 
 # Initialize the recognizer with absolute path
@@ -38,15 +38,14 @@ last_analysis_result = {
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return send_from_directory(webapp_path, 'index.html')
 
 @app.route('/<path:path>')
 def serve_file(path):
     import os
-    # Serve specific static files if they exist, otherwise fallback to index.html (SPA)
-    if os.path.exists(os.path.join(app.static_folder, path)):
-        return app.send_static_file(path)
-    return app.send_static_file('index.html')
+    if os.path.exists(os.path.join(webapp_path, path)):
+        return send_from_directory(webapp_path, path)
+    return send_from_directory(webapp_path, 'index.html')
 
 # Remover CORS(app) e recognizer duplicados
 
