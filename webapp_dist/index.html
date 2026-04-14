@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Even G2 Web App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-DFEDwNd_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DBoZhm36.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="glass-panel">
+        <h1>Even G2 Bridge</h1>
+        <div class="status-container">
+          <span class="status-indicator"></span>
+          <span id="status-text">Disconnected</span>
+        </div>
+        
+        <div class="input-group">
+          <label for="pc-ip">PC Server IP (Local)</label>
+          <input type="text" id="pc-ip" placeholder="e.g. 192.168.1.15" />
+        </div>
+
+        
+        <div id="controls-section">
+          <!-- PC Connection Section -->
+          <div class="input-group">
+            <label for="pc-ip">PC Server IP</label>
+            <input type="text" id="pc-ip" placeholder="e.g. 192.168.1.15" />
+          </div>
+          
+          <div id="status-indicator" style="margin-bottom: 10px; font-weight: bold; font-size: 14px; text-align: center;">
+            <span id="status-dot" style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#ccc; margin-right:5px;"></span>
+            <span id="status-text" style="color: #666;">Desconectado</span>
+          </div>
+
+          <!-- Hidden file input triggered by JS/Double Click -->
+          <input type="file" id="file-input" accept="image/*" capture="environment" style="display: none;" />
+          
+          <button id="send-button" style="margin-bottom: 5px;">
+            Testar Conexão PC / Ping
+          </button>
+
+          <button id="camera-button" style="background-color: #e6b840;">
+            📷 Fotografia e Análise IA
+          </button>
+          
+          <hr style="margin: 20px 0; border: 1px solid #ddd;" />
+
+          <!-- Manual Message Section -->
+          <div class="input-group">
+            <label for="message-input">Mensagem Manual para os Óculos</label>
+            <input type="text" id="message-input" placeholder="Digite algo..." />
+          </div>
+          
+          <button id="send-txt-btn" style="background-color: #4f46e5;">
+            Enviar Texto
+          </button>
+        </div>
+
+        <div id="camera-container" style="display: none; margin-top: 16px;">
+           <video id="camera-video" autoplay playsinline style="width: 100%; border-radius: 12px;"></video>
+           <canvas id="camera-canvas" style="display: none;"></canvas>
+        </div>
+      </div>
+      <div id="footer-version" style="text-align: center; font-size: 10px; color: #666; margin-top: 10px;">
+        Versão: 1.2.7
+      </div>
+    </div>
+  </body>
+</html>

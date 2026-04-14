@@ -42,8 +42,9 @@ class FacialRecognizer:
         
         print(f"Finished loading {len(self.known_face_names)} faces.")
 
-    def recognize_in_frame(self, frame, process_rescale=0.25):
+    def recognize_in_frame(self, frame, process_rescale=0.25, return_names=False):
         """Processes a single BGR frame and returns the frame with annotations."""
+        names_found = []
         try:
             if process_rescale != 1.0:
                 small_frame = cv2.resize(frame, (0, 0), fx=process_rescale, fy=process_rescale)
@@ -69,7 +70,9 @@ class FacialRecognizer:
                     distance = face_distances[best_match_index]
                     if matches[best_match_index]:
                         # Distance is lower than tolerance
-                        name = self.known_face_names[best_match_index]
+                        first_name = self.known_face_names[best_match_index]
+                        name = first_name
+                        names_found.append(first_name)
                         # Convert distance to a simple "Confidence Score" (%)
                         # 0.0 distance = 100% match, self.tolerance = 0% boundary
                         confidence = max(0, (1 - (distance / self.tolerance)) * 100)
@@ -96,7 +99,38 @@ class FacialRecognizer:
         except Exception as e:
             print(f"Error in recognition: {e}")
 
+        if return_names:
+            return frame, names_found
         return frame
+
+    def get_names_in_frame(self, frame, process_rescale=0.25):
+        """Processes a frame and returns only the list of recognized names."""
+        names_found = []
+        try:
+            if process_rescale != 1.0:
+                small_frame = cv2.resize(frame, (0, 0), fx=process_rescale, fy=process_rescale)
+            else:
+                small_frame = frame
+
+            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            face_locations = face_recognition.face_locations(rgb_small_frame)
+            face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+
+            for face_encoding in face_encodings:
+                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, tolerance=self.tolerance)
+                name = "Unknown"
+
+                face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                if len(face_distances) > 0:
+                    best_match_index = np.argmin(face_distances)
+                    if matches[best_match_index]:
+                        name = self.known_face_names[best_match_index]
+                
+                names_found.append(name)
+        except Exception as e:
+            print(f"Error in recognition: {e}")
+
+        return names_found
 
     def recognize_in_image(self, image_path):
         """Processes a single image and attempts to recognize faces."""

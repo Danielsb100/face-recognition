@@ -7,7 +7,19 @@ import shutil
 import threading
 import queue
 import time
+import socket
 from recognizer import FacialRecognizer
+
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 
 class FacialRecognitionApp:
     def __init__(self, root):
@@ -16,7 +28,7 @@ class FacialRecognitionApp:
         self.root.geometry("800x650")
         self.root.configure(bg="#2e2e2e")
 
-        self.recognizer = FacialRecognizer(tolerance=0.45) # Stricter than default
+        self.recognizer = FacialRecognizer(tolerance=0.5) # Middle ground
         self.current_image_path = None
         
         # Camera Threading State
@@ -75,6 +87,58 @@ class FacialRecognitionApp:
 
         btn_add = tk.Button(btn_frame, text="Add Person", command=self.add_to_data_bank, **btn_style)
         btn_add.pack(side=tk.LEFT, padx=15)
+
+        # Server Control Frame
+        server_frame = tk.Frame(self.root, bg="#2e2e2e")
+        server_frame.pack(fill=tk.X, pady=10)
+        
+        btn_style_green = {"font": ("Helvetica", 14, "bold"), "width": 15, "bg": "#27ae60", "fg": "white", "relief": tk.FLAT, "activebackground": "#2ecc71"}
+        self.btn_server = tk.Button(server_frame, text="Ligar Sistema", command=self.toggle_server, **btn_style_green)
+        self.btn_server.pack(side=tk.LEFT, padx=15)
+        
+        self.ip_label = tk.Label(server_frame, text="Servidor WebApp Desligado", font=("Helvetica", 16, "bold"), bg="#2e2e2e", fg="gray")
+        self.ip_label.pack(side=tk.LEFT, padx=15)
+
+    def notify_connection(self):
+        import time
+        self.last_ping_time = time.time()
+        self.root.after(0, lambda: self.ip_label.configure(text="📱 CELULAR CONECTADO!", fg="#10b981"))
+
+    def notify_image(self, rgb_image):
+        import time
+        self.last_ping_time = time.time()
+        self.root.after(0, lambda: self.display_image(rgb_image))
+        self.root.after(0, lambda: self.set_status("Foto Recebida do Celular e Analisada!"))
+        # Clear processing lock if it somehow stuck
+        self.is_processing_manual = False
+
+    def check_connection(self):
+        import time
+        if hasattr(self, 'last_ping_time') and self.last_ping_time:
+            # Aumentando para 45 segundos pois quando a câmera abre no Android,
+            # o webview pausa o setInterval, parando os pings temporariamente.
+            if time.time() - self.last_ping_time > 45:
+                local_ip = get_local_ip()
+                self.ip_label.configure(text=f"Aguardando Celular: http://{local_ip}:5000", fg="#f1c40f")
+                self.last_ping_time = None
+        self.root.after(1000, self.check_connection)
+
+    def toggle_server(self):
+        if not hasattr(self, 'server_thread') or not self.server_thread.is_alive():
+            self.btn_server.configure(text="Sistema Ligado", state=tk.DISABLED, bg="#2ecc71")
+            local_ip = get_local_ip()
+            self.ip_label.configure(text=f"Aguardando Celular: http://{local_ip}:5000", fg="#f1c40f")
+            
+            import server
+            server.gui_callback = self.notify_connection
+            server.gui_callback_image = self.notify_image
+            server.recognizer = self.recognizer
+            
+            self.last_ping_time = None
+            self.check_connection()
+            
+            self.server_thread = threading.Thread(target=lambda: server.app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False), daemon=True)
+            self.server_thread.start()
 
     def set_status(self, msg):
         self.status_var.set(msg)
