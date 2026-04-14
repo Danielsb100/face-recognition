@@ -71,7 +71,7 @@
  [],
  False,
  False,
- 1776183237,
+ 1776203954,
  [('runw.exe',
    'D:\\GitHub\\face-recognition\\venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
    'EXECUTABLE')],

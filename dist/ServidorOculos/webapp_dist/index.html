@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Even G2 Web App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-CcXf1y_q.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DBoZhm36.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="glass-panel">
+        <h1>Even G2 Bridge</h1>
+        <div class="input-group">
+          <label for="pc-ip">PC Server IP</label>
+          <input type="text" id="pc-ip" placeholder="e.g. 192.168.1.15" />
+        </div>
+        
+        <div id="controls-section">
+          <div id="status-indicator" style="margin-bottom: 10px; font-weight: bold; font-size: 14px; text-align: center;">
+            <span id="status-dot" style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#ccc; margin-right:5px;"></span>
+            <span id="status-text" style="color: #666;">Desconectado</span>
+          </div>
+
+          <!-- Native File Input Wrapper for direct touch -->
+          <button id="send-button" style="margin-bottom: 5px;">
+            Testar Conexão PC / Ping
+          </button>
+
+          <button id="camera-btn" style="display: block; width: 100%; border-radius: 8px; border: 1px solid transparent; padding: 0.6em 1.2em; font-size: 1em; font-weight: 500; font-family: inherit; background-color: #e6b840; color: #1a1a1a; cursor: pointer; transition: border-color 0.25s; text-align: center; box-sizing: border-box; margin-bottom: 5px;">
+            📸 Abrir Câmera no Navegador
+          </button>
+
+          <label for="file-input" id="camera-label" style="display: none; width: 100%; border-radius: 8px; border: 1px solid transparent; padding: 0.6em 1.2em; font-size: 1em; font-weight: 500; font-family: inherit; background-color: #10b981; color: white; cursor: pointer; transition: border-color 0.25s; text-align: center; box-sizing: border-box; margin-bottom: 5px;">
+            📷 Tirar Foto (Enviar pro Óculos)
+            <input type="file" id="file-input" accept="image/*" capture="environment" style="display: none;" />
+          </label>
+          
+          <hr style="margin: 20px 0; border: 1px solid #ddd;" />
+
+          <!-- Manual Message Section -->
+          <div class="input-group">
+            <label for="message-input">Mensagem Manual para os Óculos</label>
+            <input type="text" id="message-input" placeholder="Digite algo..." />
+          </div>
+          
+          <button id="send-txt-btn" style="background-color: #4f46e5;">
+            Enviar Texto
+          </button>
+        </div>
+
+        <div id="camera-container" style="display: none; margin-top: 16px;">
+           <video id="camera-video" autoplay playsinline style="width: 100%; border-radius: 12px;"></video>
+           <canvas id="camera-canvas" style="display: none;"></canvas>
+        </div>
+      </div>
+      <div id="footer-version" style="text-align: center; font-size: 10px; color: #666; margin-top: 10px;">
+        Versão: 1.2.11
+      </div>
+    </div>
+  </body>
+</html>
